@@ -51,5 +51,5 @@ def extract_span_elements_from_html(raw_html):
 
 
 q = yahoo_boss_request("python", 2)
-urls = extract_info_from_yahoo_response(q)
-htmls = extract_html_from_urls([x['url'] for x in urls])
+page_infos = extract_info_from_yahoo_response(q)
+htmls = extract_html_from_urls([x['url'] for x in page_infos])
