@@ -22,8 +22,10 @@
 
 import os
 from flask import Flask, jsonify
+from flask.ext.cors import CORS
 from scraper import *
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def hello():
