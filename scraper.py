@@ -11,6 +11,7 @@ import re
 import pdb
 import grequests
 import itertools
+import isodate
 from bs4 import BeautifulSoup
 from collections import Counter
 
@@ -61,16 +62,27 @@ def extract_span_elements_from_html(raw_html):
     soup = BeautifulSoup(raw_html, 'html.parser')
     return ' '.join([x.text.strip() for x in soup.find_all('p')])
 
-def time_taken(words_string):
-    return int(len(words_string.split()) / 200)
+def time_taken(res):
 
-def exception_handler(request, exception):
-    print "Request failed"
+    if 'youtube.com' in res.url:
+        return getDuration(res.url)
+    else:
+        return int(len(extract_span_elements_from_html(res.text).split()) / 200)
 
 def compare_ignore_protocol(x, y):
     asd = x.replace('http://', '').replace('https://', '')
     asd2 = y.replace('http://', '').replace('https://', '')
     return asd == asd2
+
+def getDuration(url):
+    videoId = url.split('v=')[1][:11]
+    apiUrl = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='+videoId+'+&key=AIzaSyA8tK5-oxQRlmJBD8I_PLRGoR9IAg29EJU'
+    response = requests.get(apiUrl).json()
+
+    encodedDuration = response['items'][0]['contentDetails']['duration']
+    duration = isodate.parse_duration(encodedDuration)
+    minutes = int(duration.total_seconds()/60)
+    return minutes
 
 def run_subqueries(query, time):
     list_of_urls      = []
@@ -90,8 +102,8 @@ def run_subqueries(query, time):
         top_info = filter(lambda x: compare_ignore_protocol(x['url'], response.url), page_infos)[0]
         if response.status_code == 200:
 
-
-            time_needed = time_taken(extract_span_elements_from_html(response.text))
+            time_needed = time_taken(response)
+            
             top_info['time_taken'] = time_needed
             if time_needed > time:
                 top_info['exceeded'] = (time_needed > time)
@@ -99,6 +111,6 @@ def run_subqueries(query, time):
             elif time_needed != 0:
                 top_info['exceeded'] = (time_needed > time)
                 not_exceeded_top_infos.append(top_info)
-                
+
 
     return not_exceeded_top_infos + exceeded_top_infos
