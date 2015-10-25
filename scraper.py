@@ -8,7 +8,6 @@ import oauth2 as oauth
 import time
 import json
 import re
-import pdb
 import grequests
 from bs4 import BeautifulSoup
 from collections import Counter
@@ -30,12 +29,12 @@ def oauth_request(url, params, method="GET"):
     req.sign_request(oauth.SignatureMethod_HMAC_SHA1(), consumer, None)
     return req
 
-def get_html_body(url):
-    try:
-        r = requests.get(url, verify = False).text
-    except:
-        r = None
-    return r
+# def get_html_body(url):
+#     try:
+#         r = requests.get(url, verify = False).text
+#     except:
+#         r = None
+#     return r
 
 def yahoo_boss_request(query, count):
     req = oauth_request(YAHOO_URL, params = {'q': query, 'count': count, 'abstract': 'long'})
@@ -59,10 +58,6 @@ def extract_info_from_yahoo_response(payload):
 def extract_span_elements_from_html(raw_html):
     soup = BeautifulSoup(raw_html, 'html.parser')
     return ' '.join([x.text.strip() for x in soup.find_all('p')])
-    # pdb.set_trace()
-    # [s.extract() for s in soup('script')] # remove script tags
-    # word_list = [re.sub(r'\W+', ' ', text) for text in soup.stripped_strings] # remove non alphanuerical
-    # return ' '.join(filter(lambda x : len(x) > 2, [ word.strip() for word in word_list ] )) # remove whitespace and too short words, then concatenate
 
 def time_taken(words_string):
     time = int(len(words_string.split()) / 200)
@@ -90,6 +85,8 @@ def run_subqueries(query, time):
 
     top_infos = []
     for response in response_objects:
+        if response == None:
+            continue
         top_info = filter(lambda x: compare_ignore_protocol(x['url'], response.url), page_infos)[0]
         if response.status_code == 200:
             top_info['time_taken'] = time_taken(extract_span_elements_from_html(response.text))
@@ -97,26 +94,4 @@ def run_subqueries(query, time):
             top_info['time_taken'] = 'unknown'
         top_infos.append(top_info)
 
-    # top_infos = []
-    # for top_url, _ in top_urls:
-    #     top_info = filter(lambda x: x['url'] == top_url, page_infos)[0]
-    #     html = get_html_body(top_info['url'])
-    #     if html:
-    #         top_info['time_taken'] = time_taken(extract_span_elements_from_html(html)) 
-    #     else:
-    #         top_info['time_taken'] = 'unknown'
-
-    #     top_infos.append(top_info)
-    #     if len(top_infos) > 10:
-    #         break
-
     return top_infos
-
-# def check_video_presence_on_page(url):
-#     soup = BeautifulSoup(get_html_body(url), 'html.parser')
-#     return soup
-
-# r = check_video_presence_on_page('https://sitedart.net/make-my-website/web-presence-builder')
-# q = yahoo_boss_request("explain rails", 2)
-# page_infos = extract_info_from_yahoo_response(q)
-# htmls = extract_html_from_urls([x['url'] for x in page_infos])
