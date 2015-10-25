@@ -29,7 +29,10 @@ def oauth_request(url, params, method="GET"):
     return req
 
 def get_html_body(url):
-    return requests.get(url, verify = False).text
+    try:
+        return requests.get(url, verify = False).text
+    except:
+        return None
     # return urllib2.urlopen(url).read()
 
 def yahoo_boss_request(query, count):
@@ -74,7 +77,10 @@ def run_subqueries(query):
     top_infos = []
     for top_url, _ in top_urls:
         top_info = filter(lambda x: x['url'] == top_url, list_of_infos)[0]
-        top_info['time_taken'] = time_taken(extract_html_from_urls([top_info['url']])[0])
+        if len(extract_html_from_urls([top_info['url']])) > 0:
+            top_info['time_taken'] = time_taken(extract_html_from_urls([top_info['url']])[0])
+        else:
+            top_info['time_taken'] = 'unknown'
 
         top_infos.append(top_info)
 
