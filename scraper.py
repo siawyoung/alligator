@@ -62,7 +62,7 @@ def extract_span_elements_from_html(raw_html):
     return ' '.join(filter(lambda x : len(x) > 2, [ word.strip() for word in word_list ] )) # remove whitespace and too short words, then concatenate
 
 def time_taken(words):
-    return round(len(words) / 200)
+    return int(round(len(words) / 200))
 
 def run_subqueries(query):
     list_of_urls      = []
