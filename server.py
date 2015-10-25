@@ -31,9 +31,9 @@ CORS(app)
 def hello():
     return "Hello World!"
 
-@app.route("/query/<querystring>")
-def query(querystring):
-    page_infos = {'results': run_subqueries(querystring)}
+@app.route("/query/<querystring>/<time>")
+def query(querystring, time):
+    page_infos = {'results': run_subqueries(querystring, time)}
     # pdb.set_trace()
     return jsonify(**page_infos)
 
