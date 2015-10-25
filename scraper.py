@@ -68,14 +68,13 @@ def time_taken(words_string):
     time = int(len(words_string.split()) / 200)
     return time if time != 0 else 1
 
-def run_subqueries(query):
+def run_subqueries(query, time):
     list_of_urls      = []
     list_of_infos     = []
     SUBQUERIES = ['tutorial', 'how to', 'beginner', 'dummies', 'intro', 'best', 'tutorials', 'learn', 'eli5']
     
     page_infos = extract_info_from_yahoo_response(parallel_boss_requests(query, 50, SUBQUERIES))
     list_of_urls += [ x['url'] for x in page_infos ]
-    # list_of_infos += page_infos
     top_urls = Counter(list_of_urls).most_common(50)
 
     top_infos = []
