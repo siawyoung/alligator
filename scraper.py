@@ -14,8 +14,8 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 YAHOO_URL             = "http://yboss.yahooapis.com/ysearch/web"
-OAUTH_CONSUMER_KEY    = os.environ.get('YAHOO_BOSS_OAUTH_CONSUMER_KEY')
-OAUTH_CONSUMER_SECRET = os.environ.get('YAHOO_BOSS_OAUTH_CONSUMER_SECRET')
+OAUTH_CONSUMER_KEY    = "dj0yJmk9dUpYVGZCd1hnQWVVJmQ9WVdrOVJrMUdkV2R1TlRBbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00MQ--"
+OAUTH_CONSUMER_SECRET = "dd7ad54a4cbfec931eb36bc6ee342170dac5e156"
 
 def oauth_request(url, params, method="GET"):
     params['oauth_version'] = "1.0"
