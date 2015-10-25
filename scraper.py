@@ -99,11 +99,16 @@ def run_subqueries(query, time):
     for response in response_objects:
         if response == None:
             continue
-        top_info = filter(lambda x: compare_ignore_protocol(x['url'], response.url), page_infos)[0]
+        filtered = filter(lambda x: compare_ignore_protocol(x['url'], response.url), page_infos)
+
+        if len(filtered) == 0:
+            continue
+
+        top_info = filtered[0]
         if response.status_code == 200:
 
             time_needed = time_taken(response)
-            
+
             top_info['time_taken'] = time_needed
             if time_needed > time:
                 top_info['exceeded'] = (time_needed > time)
