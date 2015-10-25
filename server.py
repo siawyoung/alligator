@@ -20,6 +20,7 @@
 #   pass
 # httpd.server_close()
 
+import os
 from flask import Flask, jsonify
 from scraper import *
 import pdb
@@ -35,5 +36,6 @@ def query(querystring):
     # pdb.set_trace()
     return jsonify(**page_infos)
 
+port = os.getenv('VCAP_APP_PORT', '5000')
 if __name__ == "__main__":
-    app.run(debug = True)
+    app.run(host='0.0.0.0', port=int(port))
