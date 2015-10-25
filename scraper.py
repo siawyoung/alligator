@@ -1,3 +1,4 @@
+from __future__ import division
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -47,3 +48,18 @@ def extract_span_elements_from_html(raw_html):
     [s.extract() for s in soup('script')] # remove script tags
     word_list = [re.sub(r'\W+', ' ', text) for text in soup.stripped_strings] # remove non alphanuerical
     return ' '.join(filter(lambda x : len(x) > 2, [ word.strip() for word in word_list ] )) # remove whitespace and too short words, then concatenate
+
+def word_count(words):
+    return len(words)
+
+def time_taken(number_of_words):
+    return number_of_words / 200
+
+# def check_video_presence_on_page(url):
+#     soup = BeautifulSoup(get_html_body(url), 'html.parser')
+#     return soup
+
+# r = check_video_presence_on_page('https://sitedart.net/make-my-website/web-presence-builder')
+# q = yahoo_boss_request("explain rails", 2)
+# page_infos = extract_info_from_yahoo_response(q)
+# htmls = extract_html_from_urls([x['url'] for x in page_infos])
