@@ -8,12 +8,13 @@ import oauth2 as oauth
 import time
 import json
 import re
-import pdb
+import eventlet
 from bs4 import BeautifulSoup
 from collections import Counter
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
+eventlet.monkey_patch()
 
 YAHOO_URL             = "http://yboss.yahooapis.com/ysearch/web"
 OAUTH_CONSUMER_KEY    = "dj0yJmk9dUpYVGZCd1hnQWVVJmQ9WVdrOVJrMUdkV2R1TlRBbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00MQ--"
@@ -31,10 +32,11 @@ def oauth_request(url, params, method="GET"):
 
 def get_html_body(url):
     try:
-        return requests.get(url, verify = False).text
+        with eventlet.Timeout(3):
+            r = requests.get(url, verify = False).text
     except:
-        return None
-    # return urllib2.urlopen(url).read()
+        r = None
+    return r
 
 def yahoo_boss_request(query, count):
     req = oauth_request(YAHOO_URL, params = {'q': query, 'count': count, 'abstract': 'long'})
@@ -77,7 +79,7 @@ def run_subqueries(query):
         page_infos = extract_info_from_yahoo_response(yahoo_boss_request(query + ' ' + subquery, 50))
         list_of_urls += [ x['url'] for x in page_infos ]
         list_of_infos += page_infos
-    top_urls = Counter(list_of_urls).most_common(10)
+    top_urls = Counter(list_of_urls).most_common(50)
 
     top_infos = []
     for top_url, _ in top_urls:
@@ -89,6 +91,8 @@ def run_subqueries(query):
             top_info['time_taken'] = 'unknown'
 
         top_infos.append(top_info)
+        if len(top_infos) > 10:
+            break
 
     return top_infos
 
