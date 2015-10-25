@@ -62,12 +62,12 @@ def extract_span_elements_from_html(raw_html):
     return ' '.join(filter(lambda x : len(x) > 2, [ word.strip() for word in word_list ] )) # remove whitespace and too short words, then concatenate
 
 def time_taken(words):
-    return len(words) / 200
+    return round(len(words) / 200)
 
 def run_subqueries(query):
     list_of_urls      = []
     list_of_infos     = []
-    SUBQUERIES = ['tutorial', 'how to', 'beginner', 'best']
+    SUBQUERIES = ['tutorial', 'how to', 'beginner', 'dummies', 'intro']
     for subquery in SUBQUERIES:
         page_infos = extract_info_from_yahoo_response(yahoo_boss_request(query + ' ' + subquery, 50))
         list_of_urls += [ x['url'] for x in page_infos ]
