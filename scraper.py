@@ -56,16 +56,6 @@ def extract_info_from_yahoo_response(payload):
     parsed_payload = [x.json()['bossresponse']['web']['results'] for x in payload]
     return [ {'title': result[0]['title'], 'url': result[0]['url'], 'abstract': result[0]['abstract']} for result in parsed_payload ]
 
-def extract_html_from_url(url):
-    pass
-    # x = []
-    # for url in urls:
-    #     y = get_html_body(url)
-    #     if y:
-    #         x.append(extract_span_elements_from_html(y))
-    # return x
-    # return [ extract_span_elements_from_html(get_html_body(url)) for url in urls ]
-
 def extract_span_elements_from_html(raw_html):
     soup = BeautifulSoup(raw_html, 'html.parser')
     return ' '.join([x.text.strip() for x in soup.find_all('p')])
@@ -81,13 +71,8 @@ def time_taken(words_string):
 def run_subqueries(query):
     list_of_urls      = []
     list_of_infos     = []
-    SUBQUERIES = ['tutorial', 'how to', 'beginner', 'dummies', 'intro']
-    # for subquery in SUBQUERIES:
-        # page_infos = extract_info_from_yahoo_response(yahoo_boss_request(query + ' ' + subquery, 50))
-        # page_infos = extract_info_from_yahoo_response(parallel_boss_requests(query, 50, subquery))
-        # list_of_urls += [ x['url'] for x in page_infos ]
-        # list_of_infos += page_infos
-
+    SUBQUERIES = ['tutorial', 'how to', 'beginner', 'dummies', 'intro', 'best', 'tutorials', 'learn', 'eli5']
+    
     page_infos = extract_info_from_yahoo_response(parallel_boss_requests(query, 50, SUBQUERIES))
     list_of_urls += [ x['url'] for x in page_infos ]
     # list_of_infos += page_infos

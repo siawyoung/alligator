@@ -4,4 +4,4 @@ oauth2==1.9.0.post1
 python-dotenv==0.1.5
 requests==2.6.0
 Flask-Cors==2.1.0
-eventlet==0.17.4
+grequests==0.2.0
