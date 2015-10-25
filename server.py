@@ -33,7 +33,7 @@ def hello():
 
 @app.route("/query/<querystring>/<time>")
 def query(querystring, time):
-    page_infos = {'results': run_subqueries(querystring, time)}
+    page_infos = {'results': run_subqueries(querystring, int(time))}
     # pdb.set_trace()
     return jsonify(**page_infos)
 

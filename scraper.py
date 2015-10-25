@@ -8,7 +8,9 @@ import oauth2 as oauth
 import time
 import json
 import re
+import pdb
 import grequests
+import itertools
 from bs4 import BeautifulSoup
 from collections import Counter
 
@@ -53,15 +55,14 @@ def parallel_boss_requests(query, count, subqueries):
 
 def extract_info_from_yahoo_response(payload):
     parsed_payload = [x.json()['bossresponse']['web']['results'] for x in payload]
-    return [ {'title': result[0]['title'], 'url': result[0]['url'], 'abstract': result[0]['abstract']} for result in parsed_payload ]
+    return [ {'title': result['title'], 'url': result['url'], 'abstract': result['abstract']} for result in list(itertools.chain(*parsed_payload)) ]
 
 def extract_span_elements_from_html(raw_html):
     soup = BeautifulSoup(raw_html, 'html.parser')
     return ' '.join([x.text.strip() for x in soup.find_all('p')])
 
 def time_taken(words_string):
-    time = int(len(words_string.split()) / 200)
-    return time if time != 0 else 1
+    return int(len(words_string.split()) / 200)
 
 def exception_handler(request, exception):
     print "Request failed"
@@ -78,20 +79,26 @@ def run_subqueries(query, time):
     
     page_infos = extract_info_from_yahoo_response(parallel_boss_requests(query, 50, SUBQUERIES))
     list_of_urls += [ x['url'] for x in page_infos ]
-    top_urls = Counter(list_of_urls).most_common(10)
-
+    top_urls = Counter(list_of_urls).most_common(20)
     rs = (grequests.get(u) for u, _ in top_urls)
     response_objects = grequests.map(rs)
-
-    top_infos = []
+    not_exceeded_top_infos = []
+    exceeded_top_infos = []
     for response in response_objects:
         if response == None:
             continue
         top_info = filter(lambda x: compare_ignore_protocol(x['url'], response.url), page_infos)[0]
         if response.status_code == 200:
-            top_info['time_taken'] = time_taken(extract_span_elements_from_html(response.text))
-        else:
-            top_info['time_taken'] = 'unknown'
-        top_infos.append(top_info)
 
-    return top_infos
+
+            time_needed = time_taken(extract_span_elements_from_html(response.text))
+            top_info['time_taken'] = time_needed
+            if time_needed > time:
+                top_info['exceeded'] = (time_needed > time)
+                exceeded_top_infos.append(top_info)
+            elif time_needed != 0:
+                top_info['exceeded'] = (time_needed > time)
+                not_exceeded_top_infos.append(top_info)
+                
+
+    return not_exceeded_top_infos + exceeded_top_infos
