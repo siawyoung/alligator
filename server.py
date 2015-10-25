@@ -23,7 +23,6 @@
 import os
 from flask import Flask, jsonify
 from scraper import *
-import pdb
 app = Flask(__name__)
 
 @app.route("/")

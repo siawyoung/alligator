@@ -9,7 +9,6 @@ import json
 import re
 from bs4 import BeautifulSoup
 from collections import Counter
-import pdb
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
