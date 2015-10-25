@@ -8,6 +8,7 @@ import oauth2 as oauth
 import time
 import json
 import re
+import pdb
 from bs4 import BeautifulSoup
 from collections import Counter
 
@@ -46,23 +47,27 @@ def yahoo_boss_request(query, count):
 def extract_info_from_yahoo_response(payload):
     return [ {'title': result['title'], 'url': result['url'], 'abstract': result['abstract']} for result in payload ]
 
-def extract_html_from_urls(urls):
-    x = []
-    for url in urls:
-        y = get_html_body(url)
-        if y:
-            x.append(extract_span_elements_from_html(y))
-    return x
+def extract_html_from_url(url):
+    pass
+    # x = []
+    # for url in urls:
+    #     y = get_html_body(url)
+    #     if y:
+    #         x.append(extract_span_elements_from_html(y))
+    # return x
     # return [ extract_span_elements_from_html(get_html_body(url)) for url in urls ]
 
 def extract_span_elements_from_html(raw_html):
     soup = BeautifulSoup(raw_html, 'html.parser')
-    [s.extract() for s in soup('script')] # remove script tags
-    word_list = [re.sub(r'\W+', ' ', text) for text in soup.stripped_strings] # remove non alphanuerical
-    return ' '.join(filter(lambda x : len(x) > 2, [ word.strip() for word in word_list ] )) # remove whitespace and too short words, then concatenate
+    return ' '.join([x.text.strip() for x in soup.find_all('p')])
+    # pdb.set_trace()
+    # [s.extract() for s in soup('script')] # remove script tags
+    # word_list = [re.sub(r'\W+', ' ', text) for text in soup.stripped_strings] # remove non alphanuerical
+    # return ' '.join(filter(lambda x : len(x) > 2, [ word.strip() for word in word_list ] )) # remove whitespace and too short words, then concatenate
 
-def time_taken(words):
-    return int(round(len(words) / 200))
+def time_taken(words_string):
+    time = int(len(words_string.split()) / 200)
+    return time if time != 0 else 1
 
 def run_subqueries(query):
     list_of_urls      = []
@@ -77,8 +82,9 @@ def run_subqueries(query):
     top_infos = []
     for top_url, _ in top_urls:
         top_info = filter(lambda x: x['url'] == top_url, list_of_infos)[0]
-        if len(extract_html_from_urls([top_info['url']])) > 0:
-            top_info['time_taken'] = time_taken(extract_html_from_urls([top_info['url']])[0])
+        html = get_html_body(top_info['url'])
+        if html:
+            top_info['time_taken'] = time_taken(extract_span_elements_from_html(html)) 
         else:
             top_info['time_taken'] = 'unknown'
 
