@@ -91,7 +91,7 @@ def run_subqueries(query, time):
     
     page_infos = extract_info_from_yahoo_response(parallel_boss_requests(query, 50, SUBQUERIES))
     list_of_urls += [ x['url'] for x in page_infos ]
-    top_urls = Counter(list_of_urls).most_common(20)
+    top_urls = Counter(list_of_urls).most_common(12)
     rs = (grequests.get(u) for u, _ in top_urls)
     response_objects = grequests.map(rs)
     not_exceeded_top_infos = []
