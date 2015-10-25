@@ -36,6 +36,7 @@ def query(querystring):
     # pdb.set_trace()
     return jsonify(**page_infos)
 
-port = os.getenv('VCAP_APP_PORT', '5000')
+# port = os.getenv('VCAP_APP_PORT', '5000')
+port = int(os.getenv('PORT', 8000))
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(port))
