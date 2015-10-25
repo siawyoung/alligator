@@ -68,27 +68,47 @@ def time_taken(words_string):
     time = int(len(words_string.split()) / 200)
     return time if time != 0 else 1
 
+def exception_handler(request, exception):
+    print "Request failed"
+
+def compare_ignore_protocol(x, y):
+    asd = x.replace('http://', '').replace('https://', '')
+    asd2 = y.replace('http://', '').replace('https://', '')
+    return asd == asd2
+
 def run_subqueries(query, time):
     list_of_urls      = []
     list_of_infos     = []
-    SUBQUERIES = ['tutorial', 'how to', 'beginner', 'dummies', 'intro', 'best', 'tutorials', 'learn', 'eli5']
+    SUBQUERIES = ['tutorial', 'how to', 'beginner', 'dummies', 'intro', 'best', 'tutorials', 'learn', 'guide']
     
     page_infos = extract_info_from_yahoo_response(parallel_boss_requests(query, 50, SUBQUERIES))
     list_of_urls += [ x['url'] for x in page_infos ]
-    top_urls = Counter(list_of_urls).most_common(50)
+    top_urls = Counter(list_of_urls).most_common(10)
+
+    rs = (grequests.get(u) for u, _ in top_urls)
+    response_objects = grequests.map(rs)
 
     top_infos = []
-    for top_url, _ in top_urls:
-        top_info = filter(lambda x: x['url'] == top_url, page_infos)[0]
-        html = get_html_body(top_info['url'])
-        if html:
-            top_info['time_taken'] = time_taken(extract_span_elements_from_html(html)) 
+    for response in response_objects:
+        top_info = filter(lambda x: compare_ignore_protocol(x['url'], response.url), page_infos)[0]
+        if response.status_code == 200:
+            top_info['time_taken'] = time_taken(extract_span_elements_from_html(response.text))
         else:
             top_info['time_taken'] = 'unknown'
-
         top_infos.append(top_info)
-        if len(top_infos) > 10:
-            break
+
+    # top_infos = []
+    # for top_url, _ in top_urls:
+    #     top_info = filter(lambda x: x['url'] == top_url, page_infos)[0]
+    #     html = get_html_body(top_info['url'])
+    #     if html:
+    #         top_info['time_taken'] = time_taken(extract_span_elements_from_html(html)) 
+    #     else:
+    #         top_info['time_taken'] = 'unknown'
+
+    #     top_infos.append(top_info)
+    #     if len(top_infos) > 10:
+    #         break
 
     return top_infos
 
